@@ -34,27 +34,32 @@ exports.update	=	function( req, res ) {
 exports.profileUpload	=	function( req, res ) {
 	console.log( "user.js", 'profileUpload' );
 
-	var id 		=	req.params.userId;
-	var images	=	[];
-	var resJson	=	null;
+	var id 			=	req.params.userId,
+		images		=	[],
+		resJson		=	null,
+		srcPath		=	null,
+		destPath	=	null,
+		filename	=	null;
 
 	if( req.files ) {
 		var image	=	req.files.images;
 
 		if( HmUtils.isImage( image ) ) {
-			images.push( { name: image.name, size : image.size } );
-			FileService.move( image.path, "./public/upload/" + id + "/profile/", image.name );
+			srcPath		=	image.path,
+			destPath	=	"./public/upload/" + id + "/profile/",
+			filename	=	image.name;
+
+			images.push( { name: filename, size : image.size } );
+			FileService.move( srcPath, destPath, filename );
 
 			resJson	=	{
 				code : "SUCCESS",
-				date : HmUtils.ISODateString( new Date() ),
 				result : images
 			};
 		} else {
 			/* 이미지 파일이 아닌 경우에는 에러 처리함. */
 			resJson	=	{
 				code : "ONLY_IMAGE",
-				date : HmUtils.ISODateString( new Date() )
 			};
 		}
 
@@ -62,9 +67,9 @@ exports.profileUpload	=	function( req, res ) {
 		/* 업로드 할 파일이 없는 경우 */
 		resJson	=	{
 			code : "NO_FILE",
-			date : HmUtils.ISODateString( new Date() ),
 		};
 	}
 
+	resJson.date 	=	HmUtils.ISODateString( new Date() );
 	ResponseHandler.response( res, JSON.stringify( resJson ) );
 };
