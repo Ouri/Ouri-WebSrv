@@ -15,3 +15,14 @@ exports.ISODateString	=	function ( d ) {
       	+ pad( d.getUTCMinutes() ) + ':'
       	+ pad( d.getUTCSeconds() ) + 'Z'
 };
+
+/* 이미지 파일인지 체크 */
+exports.isImage	=	function ( file ) {
+	var isImage	=	false;
+
+	if( file.type.indexOf( 'image' ) > -1 ) {
+		isImage	=	true;
+	} 
+
+	return isImage;
+};

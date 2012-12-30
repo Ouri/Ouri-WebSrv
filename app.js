@@ -16,16 +16,22 @@ var index      = require( './routes/controller/index' )
 /* Express 설정 */
 var app = express();
 app.configure(function(){
-  app.set('port', process.env.PORT || 3000);
-  app.set('views', __dirname + '/views');
-  app.set('view engine', 'jade');
-  app.use(express.favicon());
-  app.use(express.logger('dev'));
-  app.use(express.cookieParser());
-  app.use(express.bodyParser());
-  app.use(express.methodOverride());
-  app.use(app.router);
-  app.use(express.static(path.join(__dirname, 'public')));
+  app.set( 'port', process.env.PORT || 3000 );
+  app.set( 'views', __dirname + '/views' );
+  app.set( 'view engine', 'jade' );
+  app.use( express.favicon() );
+  app.use( express.logger( 'dev' ) );
+  app.use( express.cookieParser() );
+
+  /* 올라오는 파일 용량 제한 */
+  app.use( express.limit( '10mb' ) );
+  /* 기본 Temp 폴더 지정 */
+  app.use( express.bodyParser( { uploadDir: __dirname + '/tmp' } ) );
+  app.use( express.methodOverride() );
+  app.use( app.router );
+
+  /* static 파일들을 제공해주기 위한 폴더 제공 */
+  app.use( express.static( path.join( __dirname, 'public' ) ) );
 });
 
 app.configure('development', function(){
@@ -41,6 +47,7 @@ app.post( '/sign/in', sign.signIn );
 
 /* User */
 app.put( '/:userId/', users.update );
+app.post( '/:userId/profile/', users.profileUpload );
 
 /* Skill */
 app.post( '/skills/', skills.insert );
@@ -48,7 +55,10 @@ app.post( '/skills/', skills.insert );
 /* Schools */
 app.get( '/schools/', schools.getSchools );
 /* School Affiliation */
-app.get( '/schools/meta/affiliation/', schools.getAffiliations );
+app.get( '/meta/schoolAffiliation/', schools.getAffiliations );
+
+
+
 
 /* 서버 실행 */
 var server  =   http.createServer( app ).listen( app.get( 'port' ), function(){
