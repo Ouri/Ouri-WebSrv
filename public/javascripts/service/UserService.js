@@ -44,7 +44,7 @@ exports.update	=	function( id, data, callback ) {
 /* 사용자 계정 존재확인 */
 exports.check	=	function( data, callback ) {
 	var email		=	data.email,
-		fbToken		=	data.fbToken;
+		fbToken		=	data.fb_token;
 
 	mySqlClient.query( 
 		"SELECT * FROM Users WHERE email = ? AND fb_token = ?", 

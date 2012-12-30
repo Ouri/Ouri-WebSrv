@@ -4,6 +4,7 @@
 var HmUtils   			= 	require( '../../public/javascripts/helper/HmUtils.js' );
 var UserService   		= 	require( '../../public/javascripts/service/UserService.js' );
 var ResponseHandler   	= 	require( '../../public/javascripts/handler/ResponseHandler.js' );
+var crypto				=	require( 'crypto' );
 
 
 /* 회원가입 처리 */
@@ -13,13 +14,13 @@ exports.signOn	=	function( req, res ) {
 	var userData	=	eval( req.body );
 	UserService.insert( userData, function( error, result, fields ) {
 		var resJson	=	null;
-		var resData	=	HmUtils.ISODateString( new Date() );
+		var resDate	=	HmUtils.ISODateString( new Date() );
 
 		if( error ) throw error; 
 		else {
 			resJson	=	{
 				code : "SUCCESS",
-				date : resData,
+				date : resDate,
 				id : result.insertId
 			};				
 		}
@@ -38,12 +39,27 @@ exports.signIn	=	function( req, res ) {
 
 		if( error ) throw error;
 		else {
-			resJson	=	{
-				code : "SUCCESS",
-				date : HmUtils.ISODateString( new Date() )
-			};
+			if( result.length == 0 ) {
+				resJson	=	{
+					code : "NO_DATA",
+					result : result
+				};	
+			} else {
+				var userData	=	result[ 0 ];
+
+				resJson	=	{
+					code : "SUCCESS",
+					result : userData
+				};
+
+				/* ID와 Facebook 토큰을 쿠키로 저장 */
+				res.cookie( "Ouri-REMEMBER", userData.id + "-" + userData.fb_token, {
+					maxAge : 1000 * 60 * 60 * 24 * 365
+				});
+			}
 		}	
 
+		resJson.date = HmUtils.ISODateString( new Date() );
 		ResponseHandler.response( res, JSON.stringify( resJson ) );
 	});
 };
