@@ -2,23 +2,18 @@
 /**
  * Module dependencies.
  */
+var express   = require( 'express' )
+  , http      = require( 'http' )
+  , path      = require( 'path' );
 
-var express   = require('express')
-  , routes    = require('./routes')
-  , http      = require('http')
-  , path      = require('path')
-  , mysql     = require( 'mysql' );
+/* routes 선언. Controller로 쓰입니다. */
+var index      = require( './routes/controller/index' )
+  , sign       = require( './routes/controller/sign' )
+  , users      = require( './routes/controller/user' )
+  , skills     = require( './routes/controller/skill' )
+  , schools    = require( './routes/controller/schools' );
 
-/* MySQL Configuration */
-var sqlClient    = mysql.createConnection( {
-  host : 'ec2-23-22-240-202.compute-1.amazonaws.com',
-  post : '3306',
-  user : 'developer',
-  password : 'ouri!@#$',
-  database : 'Ouri',
-  debug : true
-});
-
+/* Express 설정 */
 var app = express();
 app.configure(function(){
   app.set('port', process.env.PORT || 3000);
@@ -26,6 +21,7 @@ app.configure(function(){
   app.set('view engine', 'jade');
   app.use(express.favicon());
   app.use(express.logger('dev'));
+  app.use(express.cookieParser());
   app.use(express.bodyParser());
   app.use(express.methodOverride());
   app.use(app.router);
@@ -36,8 +32,25 @@ app.configure('development', function(){
   app.use(express.errorHandler());
 });
 
-app.get('/', routes.index);
+/* Index */
+app.get( '/', index.index );
 
-var server  =   http.createServer(app).listen(app.get('port'), function(){
-  console.log("Express server listening on port " + app.get('port'));
+/* sign */
+app.post( '/sign/on', sign.signOn );
+app.post( '/sign/in', sign.signIn );
+
+/* User */
+app.put( '/:userId/', users.update );
+
+/* Skill */
+app.post( '/skills/', skills.insert );
+
+/* Schools */
+app.get( '/schools/', schools.getSchools );
+/* School Affiliation */
+app.get( '/schools/meta/affiliation/', schools.getAffiliations );
+
+/* 서버 실행 */
+var server  =   http.createServer( app ).listen( app.get( 'port' ), function(){
+  console.log( "Express server listening on port " + app.get( 'port' ) );
 });
