@@ -23,20 +23,31 @@ exports.update	=	function( id, data, callback ) {
 		skillId			=	data.skill_id;
 
 	var queryArray	=	new Array();
+	var fieldData	=	null;
+
 	queryArray.push( "UPDATE Users SET " );
 
 	/* Json Data의 프로퍼티를 이용해서 Field를 조합함. */
 	for( p in data ) {
 		queryArray.push( p );
 		queryArray.push( " = " );
-		queryArray.push( data[ p ] );
+
+		fieldData	=	data[ p ];
+
+		if( typeof fieldData == "string" ) {
+			fieldData	=	"'" + fieldData + "'";
+		}
+
+		queryArray.push( fieldData );
 		queryArray.push( "," );
 	}
 
 	/* 쿼리 문자열을 생성하고 마지막 ,를 제거함. */
 	var queryString	=	queryArray.join( "" );
 	queryString	=	queryString.substring( 0, queryString.length - 1 );
-	queryString	=	queryString + " Where id = ?";
+	queryString	=	queryString + " WHERE id = ?";
+
+	console.log( queryString );
 
 	mySqlClient.query( queryString, [ id ], callback );
 };

@@ -7,12 +7,15 @@ var path 	=	require( 'path' );
 /* 임시파일 이동 */
 exports.move	=	function( srcPath, destPath, name ) {
 	var filename	=	destPath + srcPath.substring( srcPath.lastIndexOf( "/" ) + 1, srcPath.length ) + "_" + name;
+	var fullPath	=	"./public" + filename;
 
-	if( fs.existsSync( destPath ) ) {
-		fs.renameSync( srcPath, filename );
+	console.log( path.dirname( fullPath ) );
+
+	if( fs.existsSync( path.dirname( fullPath ) ) ) {
+		fs.renameSync( srcPath, fullPath );
 	} else {
 		mkdir( destPath );
-		fs.renameSync( srcPath, filename );
+		fs.renameSync( srcPath, fullPath );
 	}
 
 	return filename;

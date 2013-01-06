@@ -31,7 +31,7 @@ exports.signOn	=	function( req, res ) {
 
 /* 로그인 처리 */
 exports.signIn	=	function( req, res ) {
-	console.log( 'signCheck Request' );
+	console.log( 'signIn Request' );
 
 	var userData	=	eval( req.body );
 	UserService.check( userData, function( error, result, fields ) {

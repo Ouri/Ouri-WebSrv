@@ -44,18 +44,26 @@ exports.profileUpload	=	function( req, res ) {
 	if( req.files ) {
 		var image	=	req.files.images;
 
+		/* 파일이 이미지가 맞는지 체크 함. */
 		if( HmUtils.isImage( image ) ) {
-			srcPath		=	image.path,
-			destPath	=	"./public/upload/" + id + "/profile/",
-			filename	=	image.name;
+			/* 이미지인 경우 이미지 업로드 */
+			srcPath			=	image.path,
+			destPath		=	"/upload/" + id + "/profile/",
+			filename		=	image.name,
+			uploadedPath	=	FileService.move( srcPath, destPath, filename );
 
-			images.push( { name: filename, size : image.size } );
-			FileService.move( srcPath, destPath, filename );
+			images.push( { name: filename, size : image.size, uploadedPath : uploadedPath } );
+
+			/* 프로필 이미지 정보 업데이트 */
+			UserService.update( id, { profile_uri : uploadedPath }, function( error, result, fields ) {
+				if( error ) throw error;
+			});
 
 			resJson	=	{
 				code : "SUCCESS",
 				result : images
 			};
+
 		} else {
 			/* 이미지 파일이 아닌 경우에는 에러 처리함. */
 			resJson	=	{
