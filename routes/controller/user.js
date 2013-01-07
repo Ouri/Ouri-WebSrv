@@ -7,6 +7,54 @@ var ResponseHandler   	= 	require( '../../public/javascripts/handler/ResponseHan
 *사용자 계정관련 컨트롤러 
 */
 
+/* 사용자 정보 조회 */
+exports.selectOne	=	function( req, res ) {
+	console.log( 'Get User : ' + req.params.userId );
+
+	var id 			=	req.params.userId
+	var fields		=	req.query[ "fields" ];
+
+	UserService.selectOne( id, fields, function( error, result, fields ) {
+		var resJson		=	null;
+		var resData		=	HmUtils.ISODateString( new Date() );
+		var userData	=	result[ 0 ];
+
+		if( error ) throw error;
+		else {
+			/* 결과가 존재하지 않는 경우 처리 */
+			if( result.length == 0 ) {
+				resJson	=	{
+					code 	: "NO_DATA",
+					date 	: resData,
+				};	
+
+			} else {
+			/* 회원정보가 존재하는 경우 처리 */	
+			
+				/* 향후에 좀 더 세련되게 바꾸어야 할 부분 */
+				/* fb_token은 result에서 제외 */		
+				if( userData.fb_token != null ) {
+					delete userData.fb_token;
+				}
+
+				/* pw도 제외 */
+				if( userData.pw != null ) {
+					delete userData.pw;
+				}
+
+				resJson	=	{
+					code 	: "SUCCESS",
+					date 	: resData,
+					result 	: userData
+				};	
+
+			}		
+		}
+
+		ResponseHandler.response( res, JSON.stringify( resJson ) );
+	});
+};
+
 /* 사용자 계정정보 업데이트 */
 exports.update	=	function( req, res ) {
 	console.log( 'Update User : ' + req.params.userId );

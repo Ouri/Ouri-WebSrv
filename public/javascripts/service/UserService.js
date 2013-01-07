@@ -1,5 +1,26 @@
 var mySqlClient 	= 	require( '../../../public/javascripts/db/MySqlHandler.js' ).sqlClient;
 
+/* 사용자 정보 조회 */
+exports.selectOne	=	function( id, fields, callback ) {
+	var queryArray	=	new Array();
+	queryArray.push( "SELECT " );
+
+	if( fields ) {
+		queryArray.push( fields );
+	} else {
+		queryArray.push( "*" );
+	}
+	
+	queryArray.push( " FROM Users WHERE id = ?" );
+
+	var queryString	=	queryArray.join( "" );
+	var result	=	mySqlClient.query( 
+		queryString, 
+		[ id ], 
+		callback 
+	);
+};
+
 /* 사용자 정보 생성 */
 exports.insert	=	function( data, callback ) {
 	var email			=	data.email,
@@ -52,14 +73,22 @@ exports.update	=	function( id, data, callback ) {
 	mySqlClient.query( queryString, [ id ], callback );
 };
 
-/* 사용자 계정 존재확인 */
+/* 사용자 계정 credentials 매칭 확인 */
 exports.check	=	function( data, callback ) {
-	var email		=	data.email,
-		fbToken		=	data.fb_token;
+	var email		=	data.email;
+	var queryString =	"SELECT * FROM Users WHERE email = ? AND ";
 
-	mySqlClient.query( 
-		"SELECT * FROM Users WHERE email = ? AND fb_token = ?", 
-		[ email, fbToken ], 
-		callback 
-	);
+	if( data.type == "facebook" ) {
+		queryString 	+=	"fb_token = " + data.fb_token;
+	} else {
+		queryString 	+=	"pw = " + data.pw;
+	}
+
+	mySqlClient.query( queryString, [ email ], callback );
+};
+
+/* 사용자 email 유일성 체크 */
+exports.isEmailExist	=	function( email, callback ) {
+	var queryString =	"SELECT COUNT( * ) FROM Users WHERE email = ?";
+	mySqlClient.query( queryString, [ email ], callback );
 };

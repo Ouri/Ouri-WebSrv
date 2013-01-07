@@ -44,20 +44,22 @@ app.get( '/', index.index );
 /* sign */
 app.post( '/sign/on', sign.signOn );
 app.post( '/sign/in', sign.signIn );
+app.get( '/sign/email/', sign.emailCheck );
 
 /* User */
+app.get( '/:userId/', users.selectOne );
 app.put( '/:userId/', users.update );
 app.post( '/:userId/profile/', users.profileUpload );
 
-/* Skill */
-app.post( '/skills/', skills.insert );
+/* meta 정보들 뭐라고 분류하기 애매해서 meta로 묶었음. 향후 카테고리화 할 예정. */
+app.post( '/meta//skills/', skills.insert );
+app.get( '/meta/schoolAffiliation/', schools.selectAffiliations );
+app.get( '/meta/majors/', schools.selectMajors );
+app.post( '/meta/majors/', schools.insertMajor );
+
 
 /* Schools */
 app.get( '/schools/', schools.getSchools );
-/* School Affiliation */
-app.get( '/meta/schoolAffiliation/', schools.getAffiliations );
-
-
 
 
 /* 서버 실행 */

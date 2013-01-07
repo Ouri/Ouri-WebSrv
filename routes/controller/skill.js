@@ -4,10 +4,9 @@ var ResponseHandler   	= 	require( '../../public/javascripts/handler/ResponseHan
 
 /* 스킬 등록 */
 exports.insert	=	function( req, res ) {
-	console.log( 'signOn Request' );
+	console.log( 'skill insert Request' );
 
 	var data	=	eval( req.body );
-	console.log( data );
 
 	SkillService.insert( data, function( error, result, fields ) {
 		var resJson	=	null;

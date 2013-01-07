@@ -27,13 +27,12 @@ exports.getSchools	=	function( req, res ) {
 };
 
 /* 학부/계열 검색 */
-exports.getAffiliations	=	function( req, res ) {
+exports.selectAffiliations	=	function( req, res ) {
 	console.log( "schools", 'schools selectAffiliationList' );
 
-	var fields		=	req.query[ "fields" ];
 	var conditions	=	req.query[ "conditions" ];
 
-	SchoolService.selectAffiliationList( fields, conditions, function( error, result, fields ) {
+	SchoolService.selectAffiliationList( conditions, function( error, result, fields ) {
 		var resJson	=	null;
 		var resData	=	HmUtils.ISODateString( new Date() );
 
@@ -43,6 +42,52 @@ exports.getAffiliations	=	function( req, res ) {
 				code : "SUCCESS",
 				date : resData,
 				result : result
+			};				
+		}
+
+		ResponseHandler.response( res, JSON.stringify( resJson ) );
+	});
+};
+
+/* 학부/계열 검색 */
+exports.selectMajors	=	function( req, res ) {
+	console.log( "schools", 'selectMajors' );
+
+	var conditions	=	req.query[ "conditions" ];
+
+	SchoolService.selectMajors( conditions, function( error, result, fields ) {
+		var resJson	=	null;
+		var resData	=	HmUtils.ISODateString( new Date() );
+
+		if( error ) throw error;
+		else {
+			resJson	=	{
+				code : "SUCCESS",
+				date : resData,
+				result : result
+			};				
+		}
+
+		ResponseHandler.response( res, JSON.stringify( resJson ) );
+	});
+};
+
+/* 스킬 등록 */
+exports.insertMajor	=	function( req, res ) {
+	console.log( 'skill insert Request' );
+
+	var data	=	eval( req.body );
+
+	SchoolService.insertMajor( data, function( error, result, fields ) {
+		var resJson	=	null;
+		var resData	=	HmUtils.ISODateString( new Date() );
+
+		if( error ) throw error;
+		else {
+			resJson	=	{
+				code : "SUCCESS",
+				date : resData,
+				id : result.insertId
 			};				
 		}
 

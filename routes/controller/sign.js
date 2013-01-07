@@ -63,3 +63,27 @@ exports.signIn	=	function( req, res ) {
 		ResponseHandler.response( res, JSON.stringify( resJson ) );
 	});
 };
+
+/* 회원가입 처리 */
+exports.emailCheck	=	function( req, res ) {
+	console.log( 'emailCheck Request' );
+
+	var email	=	req.query[ "email" ];
+
+	UserService.isEmailExist( email, function( error, result, fields ) {
+		var resJson	=	null;
+		var resDate	=	HmUtils.ISODateString( new Date() );
+		var data 	=	result[ 0 ];
+
+		if( error ) throw error; 
+		else {
+			resJson	=	{
+				code : "SUCCESS",
+				date : resDate,
+				result : { is_exists : data > 0 }
+			};				
+		}
+
+		ResponseHandler.response( res, JSON.stringify( resJson ) );
+	});
+};
