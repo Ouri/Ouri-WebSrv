@@ -30,7 +30,7 @@ exports.insert	=	function( data, callback ) {
 		fbToken			=	data.fb_token;	
 
 	var result	=	mySqlClient.query( 
-		"INSERT INTO Users( email, name, pw, mobile_no, fb_token ) VALUES( ?, ?, ?, ?, ? )", 
+		"INSERT INTO Users( email, name, pw, mobile_no, fb_token ) VALUES( ?, ?, PASSWORD( ? ), ?, ? )", 
 		[ email, name, pw, mobileNo, fbToken ], 
 		callback 
 	);
@@ -81,7 +81,7 @@ exports.check	=	function( data, callback ) {
 	if( data.type == "facebook" ) {
 		queryString 	+=	"fb_token = " + data.fb_token;
 	} else {
-		queryString 	+=	"pw = " + data.pw;
+		queryString 	+=	"pw = PASSWORD('" + data.pw + "')";
 	}
 
 	mySqlClient.query( queryString, [ email ], callback );

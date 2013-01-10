@@ -7,11 +7,12 @@ var express   = require( 'express' )
   , path      = require( 'path' );
 
 /* routes 선언. Controller로 쓰입니다. */
-var index      = require( './routes/controller/index' )
-  , sign       = require( './routes/controller/sign' )
-  , users      = require( './routes/controller/user' )
-  , skills     = require( './routes/controller/skill' )
-  , schools    = require( './routes/controller/schools' );
+var index     = require( './routes/controller/index' )
+  , sign      = require( './routes/controller/sign' )
+  , users     = require( './routes/controller/user' )
+  , schools   = require( './routes/controller/schools' )
+  , search    = require( './routes/controller/search' )
+  , meta      = require( './routes/controller/meta' );
 
 /* Express 설정 */
 var app = express();
@@ -51,15 +52,23 @@ app.get( '/:userId/', users.selectOne );
 app.put( '/:userId/', users.update );
 app.post( '/:userId/profile/', users.profileUpload );
 
-/* meta 정보들 뭐라고 분류하기 애매해서 meta로 묶었음. 향후 카테고리화 할 예정. */
-app.post( '/meta//skills/', skills.insert );
-app.get( '/meta/schoolAffiliation/', schools.selectAffiliations );
-app.get( '/meta/majors/', schools.selectMajors );
-app.post( '/meta/majors/', schools.insertMajor );
-
-
 /* Schools */
 app.get( '/schools/', schools.getSchools );
+
+/* Search */
+app.get( '/search/users/', search.findUsers );
+
+/* meta 정보들 뭐라고 분류하기 애매해서 meta로 묶었음. 향후 카테고리화 할 예정. */
+app.get( '/meta/skills/', meta.selectSkills );
+app.post( '/meta/skills/', meta.insertSkill );
+
+app.get( '/meta/schoolAffiliation/', meta.selectAffiliations );
+
+app.get( '/meta/majors/', meta.selectMajors );
+app.post( '/meta/majors/', meta.insertMajor );
+
+app.get( '/meta/workplaces/', meta.selectWorkplaces );
+app.post( '/meta/workplaces/', meta.insertWorkplace );
 
 
 /* 서버 실행 */
