@@ -9,10 +9,10 @@ var ResponseHandler   	= 	require( '../../public/javascripts/handler/ResponseHan
 
 /* 사용자 정보 조회 */
 exports.selectOne	=	function( req, res ) {
-	console.log( 'Get User : ' + req.params.userId );
-
 	var id 			=	req.params.userId
 	var fields		=	req.query[ "fields" ];
+
+	throw error( "헐헐헐." );
 
 	UserService.selectOne( id, fields, function( error, result, fields ) {
 		var resJson		=	null;

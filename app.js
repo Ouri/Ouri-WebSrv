@@ -4,7 +4,9 @@
  */
 var express   = require( 'express' )
   , http      = require( 'http' )
-  , path      = require( 'path' );
+  , path      = require( 'path' )
+  , winston   = require( 'winston' )
+  , fs        = require( 'fs' );
 
 /* routes 선언. Controller로 쓰입니다. */
 var index     = require( './routes/controller/index' )
@@ -13,6 +15,19 @@ var index     = require( './routes/controller/index' )
   , schools   = require( './routes/controller/schools' )
   , search    = require( './routes/controller/search' )
   , meta      = require( './routes/controller/meta' );
+
+/* Log 설정 */
+var logger  = new ( winston.Logger )( {
+  transports: [
+    new ( winston.transports.Console )(),
+    new ( winston.transports.File )( { 
+      filename : './logs/ouri-error.log',
+      level : 'error' ,
+      maxsize : 1048576,
+      json: true
+    })
+  ]
+});
 
 /* Express 설정 */
 var app = express();
@@ -30,6 +45,21 @@ app.configure(function(){
   app.use( express.bodyParser( { uploadDir: __dirname + '/tmp' } ) );
   app.use( express.methodOverride() );
   app.use( app.router );
+
+  app.use( function( err, req, res, next ) {      
+      logger.error({ 
+                      remoteAddress : req.connection.remoteAddress, 
+                      originalUrl : req.originalUrl,
+                      originalMethod : req.originalMethod,
+                      headers : req.headers,
+                      body : req.body,
+                      error : err 
+                  });
+
+      res.writeHead( 500, { 'Content-Type' : 'application/json; charset=utf-8' } );
+      res.write( err );
+      res.end();
+  });
 
   /* static 파일들을 제공해주기 위한 폴더 제공 */
   app.use( express.static( path.join( __dirname, 'public' ) ) );
