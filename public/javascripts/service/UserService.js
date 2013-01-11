@@ -11,7 +11,7 @@ exports.selectOne	=	function( id, fields, callback ) {
 		queryArray.push( "*" );
 	}
 	
-	queryArray.push( " FROM Users WHERE id = ?" );
+	queryArray.push( " FROM v_Users WHERE id = ?" );
 
 	var queryString	=	queryArray.join( "" );
 	var result	=	mySqlClient.query( 

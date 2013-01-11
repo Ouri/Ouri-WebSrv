@@ -30,18 +30,6 @@ exports.selectOne	=	function( req, res ) {
 
 			} else {
 			/* 회원정보가 존재하는 경우 처리 */	
-			
-				/* 향후에 좀 더 세련되게 바꾸어야 할 부분 */
-				/* fb_token은 result에서 제외 */		
-				if( userData.fb_token != null ) {
-					delete userData.fb_token;
-				}
-
-				/* pw도 제외 */
-				if( userData.pw != null ) {
-					delete userData.pw;
-				}
-
 				resJson	=	{
 					code 	: "SUCCESS",
 					date 	: resData,
