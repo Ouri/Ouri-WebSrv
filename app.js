@@ -47,17 +47,17 @@ app.configure(function(){
   app.use( app.router );
 
   app.use( function( err, req, res, next ) {      
-      logger.error({ 
+      logger.error( JSON.stringify( { 
                       remoteAddress : req.connection.remoteAddress, 
                       originalUrl : req.originalUrl,
                       originalMethod : req.originalMethod,
                       headers : req.headers,
                       body : req.body,
-                      error : err 
-                  });
+                      error : err.toString() 
+                  }) );
 
-      res.writeHead( 500, { 'Content-Type' : 'application/json; charset=utf-8' } );
-      res.write( err );
+      res.writeHead( 500, { 'Content-Type' : 'application/json; charset=utf-8' } );  
+      res.write( err.toString() );
       res.end();
   });
 
