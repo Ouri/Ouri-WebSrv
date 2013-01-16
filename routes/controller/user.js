@@ -1,5 +1,6 @@
 var HmUtils   			= 	require( '../../public/javascripts/helper/HmUtils.js' );
 var UserService   		= 	require( '../../public/javascripts/service/UserService.js' );
+var GroupService		=	require( '../../public/javascripts/service/GroupService.js' );
 var	FileService   		= 	require( '../../public/javascripts/service/FileService.js' );
 var ResponseHandler   	= 	require( '../../public/javascripts/handler/ResponseHandler.js' );
 
@@ -114,4 +115,72 @@ exports.profileUpload	=	function( req, res ) {
 
 	resJson.date 	=	HmUtils.ISODateString( new Date() );
 	ResponseHandler.response( res, JSON.stringify( resJson ) );
+};
+
+
+/* 디폴트 그룹 생성 */
+exports.joinDefaultGroups	=	function( req, res ) {
+	console.log( 'createDefaultGroup Request' );
+
+	/* 회원가입 성공 후에는 그룹생성 들어가야 함. */
+	// 그룹이 존재하는지 체크
+	// 있으면 해당 그룹에 사용자 등록
+	// 없으면 생성하고 해당 그룹에 사용자 등록
+
+	var id 		=	req.params.userId;
+	var fields	=	"university_id, college_id, university_admission_year";
+
+	UserService.selectOne( id, fields, function( error, result, fields ) {
+		var jsonData	=	result;
+
+		GroupService.createDefaultGroups( id, jsonData[ 0 ], function( error, result, fields ) {
+			var resJson	=	null;
+			var resDate	=	HmUtils.ISODateString( new Date() );
+
+			if( error ) throw error; 
+			else {
+				resJson	=	{
+					code : "SUCCESS",
+					date : resDate
+				};								
+			}
+
+			ResponseHandler.response( res, JSON.stringify( resJson ) );
+		});
+
+
+	});
+};
+
+/* 사용자 가입 그룹 목록 요청 */
+exports.selectGroups	=	function( req, res ) {
+	var id 			=	req.params.userId
+	var fields		=	req.query[ "fields" ];
+
+	GroupService.selectGroups( id, fields, function( error, result, fields ) {
+		var resJson		=	null;
+		var resData		=	HmUtils.ISODateString( new Date() );
+
+		if( error ) throw error;
+		else {
+			/* 결과가 존재하지 않는 경우 처리 */
+			if( result.length == 0 ) {
+				resJson	=	{
+					code 	: "NO_DATA",
+					date 	: resData,
+				};	
+
+			} else {
+			/* 회원정보가 존재하는 경우 처리 */	
+				resJson	=	{
+					code 	: "SUCCESS",
+					date 	: resData,
+					result 	: result
+				};	
+
+			}		
+		}
+
+		ResponseHandler.response( res, JSON.stringify( resJson ) );
+	});
 };

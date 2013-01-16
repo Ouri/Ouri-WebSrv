@@ -3,6 +3,7 @@
 */
 var HmUtils   			= 	require( '../../public/javascripts/helper/HmUtils.js' );
 var UserService   		= 	require( '../../public/javascripts/service/UserService.js' );
+var GroupService		=	require( '../../public/javascripts/service/GroupService.js' );
 var ResponseHandler   	= 	require( '../../public/javascripts/handler/ResponseHandler.js' );
 var crypto				=	require( 'crypto' );
 
@@ -22,7 +23,8 @@ exports.signOn	=	function( req, res ) {
 				code : "SUCCESS",
 				date : resDate,
 				id : result.insertId
-			};				
+			};	
+						
 		}
 
 		ResponseHandler.response( res, JSON.stringify( resJson ) );

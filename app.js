@@ -12,6 +12,7 @@ var express   = require( 'express' )
 var index     = require( './routes/controller/index' )
   , sign      = require( './routes/controller/sign' )
   , users     = require( './routes/controller/user' )
+  , groups    = require( './routes/controller/groups' )
   , schools   = require( './routes/controller/schools' )
   , search    = require( './routes/controller/search' )
   , meta      = require( './routes/controller/meta' );
@@ -53,7 +54,8 @@ app.configure(function(){
                       originalMethod : req.originalMethod,
                       headers : req.headers,
                       body : req.body,
-                      error : err.toString() 
+                      error : err.toString(),
+                      stack : err.stack 
                   }) );
 
       res.writeHead( 500, { 'Content-Type' : 'application/json; charset=utf-8' } );  
@@ -61,12 +63,24 @@ app.configure(function(){
       res.end();
   });
 
+  // Exception Handler 등록
+process.on( 'uncaughtException', function( err ) {
+  console.log( 'Caught exception: ' + err );
+  console.log( err.stack );
+
+  logger.error( JSON.stringify( { 
+                                  type : "uncaughtException",
+                                  error : err,
+                                  stack : err.stack
+                                }));
+});
+
   /* static 파일들을 제공해주기 위한 폴더 제공 */
   app.use( express.static( path.join( __dirname, 'public' ) ) );
 });
 
-app.configure('development', function(){
-  app.use(express.errorHandler());
+app.configure( 'development', function(){
+  app.use( express.errorHandler() );
 });
 
 /* Index */
@@ -77,10 +91,15 @@ app.post( '/sign/on', sign.signOn );
 app.post( '/sign/in', sign.signIn );
 app.get( '/sign/email/', sign.emailCheck );
 
-/* User */
-app.get( '/:userId/', users.selectOne );
-app.put( '/:userId/', users.update );
-app.post( '/:userId/profile/', users.profileUpload );
+/* Users */
+app.get( '/users/:userId/', users.selectOne );
+app.put( '/users/:userId/', users.update );
+app.post( '/users/:userId/profile/', users.profileUpload );
+app.post( '/users/:userId/groups/default/', users.joinDefaultGroups );
+app.get( '/users/:userId/groups/', users.selectGroups );
+
+/* Groups */
+app.get( '/groups/:groupId/', groups.getGroupUsers );
 
 /* Schools */
 app.get( '/schools/', schools.getSchools );
@@ -99,6 +118,9 @@ app.post( '/meta/majors/', meta.insertMajor );
 
 app.get( '/meta/workplaces/', meta.selectWorkplaces );
 app.post( '/meta/workplaces/', meta.insertWorkplace );
+
+
+
 
 
 /* 서버 실행 */
