@@ -63,7 +63,7 @@ app.configure(function(){
       res.end();
   });
 
-  // Exception Handler 등록
+// Exception Handler 등록
 process.on( 'uncaughtException', function( err ) {
   console.log( 'Caught exception: ' + err );
   console.log( err.stack );
