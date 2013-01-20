@@ -8,7 +8,8 @@ lib-cov
 *.gz
 
 pids
-logs
+logs/
+tmp/
 results
 
 npm-debug.log
