@@ -1,5 +1,5 @@
 {
-  "name": "application-name",
+  "name": "Ouri",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -8,5 +8,19 @@
   "dependencies": {
     "express": "3.0.3",
     "jade": "*"
+  },
+  "config" : {
+    "port" : 3000,
+    "tokenKey" : "hunminisaniceguy",
+    "cipherAlgorithm" : "aes-256-cbc",
+    "tokenHeaderName" : "ouri-resttoken"
+  },
+  "resultCode" : {
+    "success"       :   "SUCCESS",
+    "no_data"       :   "NO_DATA",
+    "unauthorized"  :   "UNAUTHORIZED",
+    "not_login"     :   "NOT_LOGIN",
+    "only_image"    :   "ONLY_IMAGE",
+    "no_file"       :   "NO_FILE"
   }
 }

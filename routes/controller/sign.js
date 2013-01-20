@@ -1,11 +1,11 @@
 /**
 * 회원가입 컨트롤러
 */
-var HmUtils   			= 	require( '../../public/javascripts/helper/HmUtils.js' );
-var UserService   		= 	require( '../../public/javascripts/service/UserService.js' );
-var GroupService		=	require( '../../public/javascripts/service/GroupService.js' );
-var ResponseHandler   	= 	require( '../../public/javascripts/handler/ResponseHandler.js' );
-var crypto				=	require( 'crypto' );
+var crypto			=	require( 'crypto' )
+,	HmUtils   		= 	require( '../../public/javascripts/helper/HmUtils.js' )
+,	UserService   	= 	require( '../../public/javascripts/service/UserService.js' )
+,	GroupService	=	require( '../../public/javascripts/service/GroupService.js' )
+,	ResponseHandler = 	require( '../../public/javascripts/handler/ResponseHandler.js' );
 
 
 /* 회원가입 처리 */
@@ -20,7 +20,7 @@ exports.signOn	=	function( req, res ) {
 		if( error ) throw error; 
 		else {
 			resJson	=	{
-				code : "SUCCESS",
+				code : gResultCode.success,
 				date : resDate,
 				id : result.insertId
 			};	
@@ -37,27 +37,29 @@ exports.signIn	=	function( req, res ) {
 
 	var userData	=	eval( req.body );
 	UserService.check( userData, function( error, result, fields ) {
-		var resJson	=	null;
-
+		var resJson		=	null;
+		
 		if( error ) throw error;
 		else {
 			if( result.length == 0 ) {
 				resJson	=	{
-					code : "NO_DATA",
+					code : gResultCode.no_data,
 					result : result
 				};	
 			} else {
 				var userData	=	result[ 0 ];
 
-				resJson	=	{
-					code : "SUCCESS",
-					result : userData
-				};
+				/* 인증토큰 생성 */
+				var rawToken 	=	JSON.stringify( { id : userData.id, role : userData.role, timestamp : new Date() } );
+				var cipher    	=   crypto.createCipher( gConfig.cipherAlgorithm, gConfig.tokenKey );
+				var crypted 	= 	cipher.update( rawToken, 'utf8', 'hex' );
+				crypted += 	cipher.final( 'hex' );
 
-				/* ID와 Facebook 토큰을 쿠키로 저장 */
-				res.cookie( "Ouri-REMEMBER", userData.id + "-" + userData.fb_token, {
-					maxAge : 1000 * 60 * 60 * 24 * 365
-				});
+				resJson	=	{
+					code : gResultCode.success,
+					result : userData,
+					accessToken : crypted
+				};
 			}
 		}	
 
@@ -80,7 +82,7 @@ exports.emailCheck	=	function( req, res ) {
 		if( error ) throw error; 
 		else {
 			resJson	=	{
-				code : "SUCCESS",
+				code : gResultCode.success,
 				date : resDate,
 				result : { is_exists : data > 0 }
 			};				

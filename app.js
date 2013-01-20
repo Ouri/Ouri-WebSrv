@@ -1,12 +1,23 @@
 
 /**
+ * Package Configuration
+ */
+var packageProperty  = require( './package' );
+global.gConfig      =   eval( packageProperty.config );
+global.gResultCode   =   eval( packageProperty.resultCode ); 
+
+/**
  * Module dependencies.
  */
-var express   = require( 'express' )
-  , http      = require( 'http' )
-  , path      = require( 'path' )
-  , winston   = require( 'winston' )
-  , fs        = require( 'fs' );
+var express         =   require( 'express' )
+  , http            =   require( 'http' )
+  , path            =   require( 'path' )
+  , winston         =   require( 'winston' )
+  , fs              =   require( 'fs' );
+
+/* 자주 쓰이는 모듈 글로벌 객체로 등록 */
+global.gSecurityManager =   require( './public/javascripts/security/SecurityManager.js' );
+global.gSqlClient       =   require( './public/javascripts/db/MySqlHandler.js' ).sqlClient;
 
 /* routes 선언. Controller로 쓰입니다. */
 var index     = require( './routes/controller/index' )
@@ -118,9 +129,6 @@ app.post( '/meta/majors/', meta.insertMajor );
 
 app.get( '/meta/workplaces/', meta.selectWorkplaces );
 app.post( '/meta/workplaces/', meta.insertWorkplace );
-
-
-
 
 
 /* 서버 실행 */

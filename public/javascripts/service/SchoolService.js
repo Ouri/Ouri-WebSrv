@@ -1,5 +1,3 @@
-var mySqlClient 	= 	require( '../../../public/javascripts/db/MySqlHandler.js' ).sqlClient;
-
 /* 학교 리스트 요청 */
 exports.selectList	=	function( fields, conditions, callback ) {
 	var queryArray	=	new Array();
@@ -20,7 +18,7 @@ exports.selectList	=	function( fields, conditions, callback ) {
 	
 	var queryString	=	queryArray.join( "" );
 
-	mySqlClient.query( 
+	gSqlClient.query( 
 		queryString, 
 		callback 
 	)

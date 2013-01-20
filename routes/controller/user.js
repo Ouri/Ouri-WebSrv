@@ -1,8 +1,8 @@
-var HmUtils   			= 	require( '../../public/javascripts/helper/HmUtils.js' );
-var UserService   		= 	require( '../../public/javascripts/service/UserService.js' );
-var GroupService		=	require( '../../public/javascripts/service/GroupService.js' );
-var	FileService   		= 	require( '../../public/javascripts/service/FileService.js' );
-var ResponseHandler   	= 	require( '../../public/javascripts/handler/ResponseHandler.js' );
+var HmUtils   		= 	require( '../../public/javascripts/helper/HmUtils.js' )
+,	UserService   	= 	require( '../../public/javascripts/service/UserService.js' )
+,	GroupService	=	require( '../../public/javascripts/service/GroupService.js' )
+,	FileService   	= 	require( '../../public/javascripts/service/FileService.js' )
+,	ResponseHandler = 	require( '../../public/javascripts/handler/ResponseHandler.js' );
 
 /** 
 *사용자 계정관련 컨트롤러 
@@ -23,14 +23,14 @@ exports.selectOne	=	function( req, res ) {
 			/* 결과가 존재하지 않는 경우 처리 */
 			if( result.length == 0 ) {
 				resJson	=	{
-					code 	: "NO_DATA",
+					code 	: gResultCode.no_data,
 					date 	: resData,
 				};	
 
 			} else {
 			/* 회원정보가 존재하는 경우 처리 */	
 				resJson	=	{
-					code 	: "SUCCESS",
+					code 	: gResultCode.success,
 					date 	: resData,
 					result 	: userData
 				};	
@@ -49,19 +49,33 @@ exports.update	=	function( req, res ) {
 	var id 			=	req.params.userId
 	var userData	=	eval( req.body );
 
-	UserService.update( id, userData, function( error, result, fields ) {
-		var resJson	=	null;
-		var resData	=	HmUtils.ISODateString( new Date() );
+	/* 사용자 인증 체크 */
+	gSecurityManager.isAuthorized( req, id, function( resultCode ) {
+		/* 인증이 되어있지 않다면. */
+		if( resultCode != gResultCode.success ) {
+			var resJson	=	{
+				code : resultCode,
+				date : HmUtils.ISODateString( new Date() )
+			};	
 
-		if( error ) throw error;
-		else {
-			resJson	=	{
-				code : "SUCCESS",
-				date : resData
-			};				
-		}
+			ResponseHandler.response( res, JSON.stringify( resJson ) );
+			return;
+		}	
 
-		ResponseHandler.response( res, JSON.stringify( resJson ) );
+		UserService.update( id, userData, function( error, result, fields ) {
+			var resJson	=	null;
+			var resData	=	HmUtils.ISODateString( new Date() );
+
+			if( error ) throw error;
+			else {
+				resJson	=	{
+					code : gResultCode.success,
+					date : resData
+				};				
+			}
+
+			ResponseHandler.response( res, JSON.stringify( resJson ) );
+		});
 	});
 };
 
@@ -76,45 +90,59 @@ exports.profileUpload	=	function( req, res ) {
 		destPath	=	null,
 		filename	=	null;
 
-	if( req.files ) {
-		var image	=	req.files.images;
+	/* 사용자 인증 체크 */
+	gSecurityManager.isAuthorized( req, id, function( resultCode ) {
+		/* 인증이 되어있지 않다면. */
+		if( resultCode != gResultCode.success ) {
+			var resJson	=	{
+				code : resultCode,
+				date : HmUtils.ISODateString( new Date() )
+			};	
 
-		/* 파일이 이미지가 맞는지 체크 함. */
-		if( HmUtils.isImage( image ) ) {
-			/* 이미지인 경우 이미지 업로드 */
-			srcPath			=	image.path,
-			destPath		=	"/upload/" + id + "/profile/",
-			filename		=	image.name,
-			uploadedPath	=	FileService.move( srcPath, destPath, filename );
+			ResponseHandler.response( res, JSON.stringify( resJson ) );
+			return;
+		}
 
-			images.push( { name: filename, size : image.size, uploadedPath : uploadedPath } );
+		if( req.files ) {
+			var image	=	req.files.images;
 
-			/* 프로필 이미지 정보 업데이트 */
-			UserService.update( id, { profile_uri : uploadedPath }, function( error, result, fields ) {
-				if( error ) throw error;
-			});
+			/* 파일이 이미지가 맞는지 체크 함. */
+			if( HmUtils.isImage( image ) ) {
+				/* 이미지인 경우 이미지 업로드 */
+				srcPath			=	image.path,
+				destPath		=	"/upload/" + id + "/profile/",
+				filename		=	image.name,
+				uploadedPath	=	FileService.move( srcPath, destPath, filename );
 
-			resJson	=	{
-				code : "SUCCESS",
-				result : images
-			};
+				images.push( { name: filename, size : image.size, uploadedPath : uploadedPath } );
+
+				/* 프로필 이미지 정보 업데이트 */
+				UserService.update( id, { profile_uri : uploadedPath }, function( error, result, fields ) {
+					if( error ) throw error;
+				});
+
+				resJson	=	{
+					code : gResultCode.success,
+					result : images
+				};
+
+			} else {
+				/* 이미지 파일이 아닌 경우에는 에러 처리함. */
+				resJson	=	{
+					code : gResultCode.only_image,
+				};
+			}
 
 		} else {
-			/* 이미지 파일이 아닌 경우에는 에러 처리함. */
+			/* 업로드 할 파일이 없는 경우 */
 			resJson	=	{
-				code : "ONLY_IMAGE",
+				code : gResultCode.no_file,
 			};
 		}
 
-	} else {
-		/* 업로드 할 파일이 없는 경우 */
-		resJson	=	{
-			code : "NO_FILE",
-		};
-	}
-
-	resJson.date 	=	HmUtils.ISODateString( new Date() );
-	ResponseHandler.response( res, JSON.stringify( resJson ) );
+		resJson.date 	=	HmUtils.ISODateString( new Date() );
+		ResponseHandler.response( res, JSON.stringify( resJson ) );
+	});	
 };
 
 
@@ -126,28 +154,40 @@ exports.joinDefaultGroups	=	function( req, res ) {
 	// 그룹이 존재하는지 체크
 	// 있으면 해당 그룹에 사용자 등록
 	// 없으면 생성하고 해당 그룹에 사용자 등록
-
 	var id 		=	req.params.userId;
 	var fields	=	"university_id, college_id, university_admission_year";
 
-	UserService.selectOne( id, fields, function( error, result, fields ) {
-		var jsonData	=	result;
-
-		GroupService.createDefaultGroups( id, jsonData[ 0 ], function( error, result, fields ) {
-			var resJson	=	null;
-			var resDate	=	HmUtils.ISODateString( new Date() );
-
-			if( error ) throw error; 
-			else {
-				resJson	=	{
-					code : "SUCCESS",
-					date : resDate
-				};								
-			}
+	/* 사용자 인증 체크 */
+	gSecurityManager.isAuthorized( req, id, function( resultCode ) {
+		/* 인증이 되어있지 않다면. */
+		if( resultCode != gResultCode.success ) {
+			var resJson	=	{
+				code : resultCode,
+				date : HmUtils.ISODateString( new Date() )
+			};	
 
 			ResponseHandler.response( res, JSON.stringify( resJson ) );
-		});
+			return;
+		}
 
+		UserService.selectOne( id, fields, function( error, result, fields ) {
+			var jsonData	=	result;
+
+			GroupService.createDefaultGroups( id, jsonData[ 0 ], function( error, result, fields ) {
+				var resJson	=	null;
+				var resDate	=	HmUtils.ISODateString( new Date() );
+
+				if( error ) throw error; 
+				else {
+					resJson	=	{
+						code : gResultCode.success,
+						date : resDate
+					};								
+				}
+
+				ResponseHandler.response( res, JSON.stringify( resJson ) );
+			});
+		});
 
 	});
 };
@@ -157,30 +197,43 @@ exports.selectGroups	=	function( req, res ) {
 	var id 			=	req.params.userId
 	var fields		=	req.query[ "fields" ];
 
-	GroupService.selectGroups( id, fields, function( error, result, fields ) {
-		var resJson		=	null;
-		var resData		=	HmUtils.ISODateString( new Date() );
+		/* 사용자 인증 체크 */
+	gSecurityManager.isAuthorized( req, id, function( resultCode ) {
+		/* 인증이 되어있지 않다면. */
+		if( resultCode != gResultCode.success ) {
+			var resJson	=	{
+				code : resultCode,
+				date : HmUtils.ISODateString( new Date() )
+			};	
 
-		if( error ) throw error;
-		else {
-			/* 결과가 존재하지 않는 경우 처리 */
-			if( result.length == 0 ) {
-				resJson	=	{
-					code 	: "NO_DATA",
-					date 	: resData,
-				};	
-
-			} else {
-			/* 회원정보가 존재하는 경우 처리 */	
-				resJson	=	{
-					code 	: "SUCCESS",
-					date 	: resData,
-					result 	: result
-				};	
-
-			}		
+			ResponseHandler.response( res, JSON.stringify( resJson ) );
+			return;
 		}
 
-		ResponseHandler.response( res, JSON.stringify( resJson ) );
+		GroupService.selectGroups( id, fields, function( error, result, fields ) {
+			var resJson		=	null;
+			var resData		=	HmUtils.ISODateString( new Date() );
+
+			if( error ) throw error;
+			else {
+				/* 결과가 존재하지 않는 경우 처리 */
+				if( result.length == 0 ) {
+					resJson	=	{
+						code : gResultCode.no_data,
+						date : resData,
+					};	
+
+				} else {
+				/* 회원정보가 존재하는 경우 처리 */	
+					resJson	=	{
+						code 	: gResultCode.success,
+						date 	: resData,
+						result 	: result
+					};	
+				}		
+			}
+			ResponseHandler.response( res, JSON.stringify( resJson ) );
+		});
+
 	});
 };

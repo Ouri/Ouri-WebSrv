@@ -1,5 +1,3 @@
-var mySqlClient 	= 	require( '../../../public/javascripts/db/MySqlHandler.js' ).sqlClient;
-
 /* 사용자 정보 조 */
 exports.findUsers	=	function( fields, conditions, callback ) {
 	var queryArray	=	new Array();
@@ -20,7 +18,7 @@ exports.findUsers	=	function( fields, conditions, callback ) {
 	
 	var queryString	=	queryArray.join( "" );
 
-	mySqlClient.query( 
+	gSqlClient.query( 
 		queryString, 
 		callback 
 	)

@@ -1,4 +1,3 @@
-var mySqlClient 	= 	require( '../../../public/javascripts/db/MySqlHandler.js' ).sqlClient;
 
 /* 사용자 정보 조회 */
 exports.selectOne	=	function( id, fields, callback ) {
@@ -14,7 +13,7 @@ exports.selectOne	=	function( id, fields, callback ) {
 	queryArray.push( " FROM v_Users WHERE id = ?" );
 
 	var queryString	=	queryArray.join( "" );
-	var result	=	mySqlClient.query( 
+	var result	=	gSqlClient.query( 
 		queryString, 
 		[ id ], 
 		callback 
@@ -29,7 +28,7 @@ exports.insert	=	function( data, callback ) {
 		mobileNo		=	data.mobile_no,
 		fbToken			=	data.fb_token;	
 
-	var result	=	mySqlClient.query( 
+	var result	=	gSqlClient.query( 
 		"INSERT INTO Users( email, name, pw, mobile_no, fb_token ) VALUES( ?, ?, PASSWORD( ? ), ?, ? )", 
 		[ email, name, pw, mobileNo, fbToken ], 
 		callback 
@@ -70,7 +69,7 @@ exports.update	=	function( id, data, callback ) {
 
 	console.log( queryString );
 
-	mySqlClient.query( queryString, [ id ], callback );
+	gSqlClient.query( queryString, [ id ], callback );
 };
 
 /* 사용자 계정 credentials 매칭 확인 */
@@ -84,11 +83,11 @@ exports.check	=	function( data, callback ) {
 		queryString 	+=	"pw = PASSWORD('" + data.pw + "')";
 	}
 
-	mySqlClient.query( queryString, [ email ], callback );
+	gSqlClient.query( queryString, [ email ], callback );
 };
 
 /* 사용자 email 유일성 체크 */
 exports.isEmailExist	=	function( email, callback ) {
 	var queryString =	"SELECT COUNT( * ) FROM Users WHERE email = ?";
-	mySqlClient.query( queryString, [ email ], callback );
+	gSqlClient.query( queryString, [ email ], callback );
 };

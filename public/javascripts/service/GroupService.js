@@ -1,10 +1,9 @@
-var mySqlClient 	= 	require( '../../../public/javascripts/db/MySqlHandler.js' ).sqlClient;
 
 /* Default 그룹생성 */
 exports.createDefaultGroups	=	function( userId, data, callback ) {
 	/* 프로시저 호출 */
 	var queryString	=	'CALL prc_createDefaultGroups( ?, ?, ?, ? )';
-	mySqlClient.query( 
+	gSqlClient.query( 
 		queryString, 
 		[ userId, data.university_id, data.college_id, data.university_admission_year ], 
 		callback 
@@ -24,7 +23,7 @@ exports.selectGroups	=	function( id, fields, callback ) {
 
 	queryArray.push( " FROM v_Groups WHERE id IN ( SELECT group_id FROM GroupUsers WHERE user_id = ? )" );
 	var queryString	=	queryArray.join( "" );
-	var result	=	mySqlClient.query( 
+	var result	=	gSqlClient.query( 
 		queryString, 
 		[ id ], 
 		callback 
@@ -51,7 +50,7 @@ exports.selectGroupUsers	=	function( id, fields, limit, callback ) {
 	}
 
 	var queryString	=	queryArray.join( "" );
-	var result	=	mySqlClient.query( 
+	var result	=	gSqlClient.query( 
 		queryString, 
 		[ id ], 
 		callback 
