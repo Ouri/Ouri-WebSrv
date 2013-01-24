@@ -234,6 +234,95 @@ exports.selectGroups	=	function( req, res ) {
 			}
 			ResponseHandler.response( res, JSON.stringify( resJson ) );
 		});
-
 	});
 };
+
+/* Awards 등록 API */
+exports.insertAward	=	function( req, res ) {
+	console.log( "insertAward" );
+
+	var id 			=	req.params.userId;
+	var reqData		=	eval( req.body );
+	var senderId	=	reqData.sender;
+
+	gSecurityManager.isAuthorized( req, id, function( resultCode ) {
+		/* 로그인이 안 되어 있는 경우 처리 */
+		if( resultCode == gResultCode.not_login ) {
+			var resJson	=	{
+				code : resultCode,
+				date : HmUtils.ISODateString( new Date() )
+			};	
+
+			ResponseHandler.response( res, JSON.stringify( resJson ) );
+			return;
+		}
+
+		/* awards를 일으킨 사용자 정보 요청 */
+		UserService.selectOne( senderId, null, function( error, result, fields ) {
+			var resJson		=	null;
+			var resDate		=	HmUtils.ISODateString( new Date() );
+			var userData	=	result[ 0 ];
+
+			if( error ) throw error;
+			else {
+
+				if( !userData ) {
+					resJson	=	{
+						code 	: gResultCode.no_data,
+						date 	: resDate
+					};
+					ResponseHandler.response( res, JSON.stringify( resJson ) );	
+					return;
+				}
+
+				var AwardHistory 	=	gMongoModel[ "AwardHistory" ];
+
+				var awardHistory  	= 	new AwardHistory ({
+			  		sender : {
+			    		id : userData.id,
+			    		name : userData.name,
+			    		profile_uri : userData.profile_uri 
+			  		},
+			  		receiver : {
+			    		id : id
+			  		},
+			  		regdate : new Date()
+				});
+
+				/* 데이터 중복 등록체크 해야 함. */
+				AwardHistory.count({ 
+					'sender.id' : userData.id,
+					'receiver.id' : id
+				}, 
+				function( err, docs ) {
+					if( err ) throw error;
+					else {
+						/* 이미 등록된 경우 */
+						if( docs > 0 ) {
+							resJson	=	{
+								code 	: gResultCode.duplicate,
+								date 	: resDate
+							};
+							ResponseHandler.response( res, JSON.stringify( resJson ) );	
+							return;
+
+						} else {
+							awardHistory.save( function( err, data ) {
+						  		if( err ) throw error;
+								else {
+						    		resJson	=	{
+										code 	: gResultCode.success,
+										date 	: resDate
+									};
+
+									ResponseHandler.response( res, JSON.stringify( resJson ) );	
+						  		}
+							});	
+						}
+					}
+				});				
+			}
+		}); // end of selectOne
+	}); // end of isAuthorized
+};
+

@@ -21,6 +21,7 @@
     "unauthorized"  :   "UNAUTHORIZED",
     "not_login"     :   "NOT_LOGIN",
     "only_image"    :   "ONLY_IMAGE",
-    "no_file"       :   "NO_FILE"
+    "no_file"       :   "NO_FILE",
+    "duplicate"     :   "DUPLICATE"
   }
 }

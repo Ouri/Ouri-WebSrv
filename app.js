@@ -18,6 +18,8 @@ var express         =   require( 'express' )
 /* 자주 쓰이는 모듈 글로벌 객체로 등록 */
 global.gSecurityManager =   require( './public/javascripts/security/SecurityManager.js' );
 global.gSqlClient       =   require( './public/javascripts/db/MySqlHandler.js' ).sqlClient;
+global.gMongoModel      =   require( './public/javascripts/db/MongoDBHandler.js' );
+
 
 /* routes 선언. Controller로 쓰입니다. */
 var index     = require( './routes/controller/index' )
@@ -108,6 +110,8 @@ app.put( '/users/:userId/', users.update );
 app.post( '/users/:userId/profile/', users.profileUpload );
 app.post( '/users/:userId/groups/default/', users.joinDefaultGroups );
 app.get( '/users/:userId/groups/', users.selectGroups );
+
+app.post( '/users/:userId/awards/', users.insertAward );
 
 /* Groups */
 app.get( '/groups/:groupId/', groups.getGroupUsers );
