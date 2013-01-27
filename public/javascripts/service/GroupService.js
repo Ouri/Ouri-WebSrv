@@ -11,7 +11,7 @@ exports.createDefaultGroups	=	function( userId, data, callback ) {
 };
 
 /* 사용자 가입 그룹 조회 */
-exports.selectGroups	=	function( id, fields, callback ) {
+exports.selectUserGroups	=	function( id, fields, callback ) {
 	var queryArray	=	[];
 	queryArray.push( "SELECT " );
 
@@ -21,7 +21,27 @@ exports.selectGroups	=	function( id, fields, callback ) {
 		queryArray.push( "*" );
 	}
 
-	queryArray.push( " FROM v_Groups WHERE id IN ( SELECT group_id FROM GroupUsers WHERE user_id = ? )" );
+	queryArray.push( " FROM v_Groups WHERE group_id IN ( SELECT group_id FROM GroupUsers WHERE user_id = ? )" );
+	var queryString	=	queryArray.join( "" );
+	var result	=	gSqlClient.query( 
+		queryString, 
+		[ id ], 
+		callback 
+	);
+};
+
+/* 사용자 가입 그룹 조회 */
+exports.selectGroupOne	=	function( id, fields, callback ) {
+	var queryArray	=	[];
+	queryArray.push( "SELECT " );
+
+	if( fields ) {
+		queryArray.push( fields );
+	} else {
+		queryArray.push( "*" );
+	}
+
+	queryArray.push( " FROM v_Groups WHERE group_id = ?" );
 	var queryString	=	queryArray.join( "" );
 	var result	=	gSqlClient.query( 
 		queryString, 
@@ -56,3 +76,4 @@ exports.selectGroupUsers	=	function( id, fields, limit, callback ) {
 		callback 
 	);
 };
+

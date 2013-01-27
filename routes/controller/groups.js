@@ -30,10 +30,42 @@ exports.getGroupUsers	=	function( req, res ) {
 					date 	: resData,
 					result 	: result
 				};	
-
 			}		
 		}
 
 		ResponseHandler.response( res, JSON.stringify( resJson ) );
 	});
 };
+
+/* 그룹정보 요청 */
+exports.getGroupInfo	=	function( req, res ) {
+	var id 		=	req.params.groupId;
+	var fields	=	req.query[ "fields" ];
+
+	GroupService.selectGroupOne( id, fields, function( error, result, fields ) {
+		var resJson	=	null;
+		var resData =	HmUtils.ISODateString( new Date() );
+
+		if( error ) throw error;
+		else {
+			/* 결과가 존재하지 않는 경우 처리 */
+			if( result.length == 0 ) {
+				resJson	=	{
+					code 	: "NO_DATA",
+					date 	: resData,
+				};	
+
+			} else {
+			/* 그룹 정보가 존재하는 경우 처리 */	
+				resJson	=	{
+					code 	: "SUCCESS",
+					date 	: resData,
+					result 	: result
+				};	
+			}
+
+			ResponseHandler.response( res, JSON.stringify( resJson ) );		
+		}
+	});
+};
+

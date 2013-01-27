@@ -67,8 +67,6 @@ exports.update	=	function( id, data, callback ) {
 	queryString	=	queryString.substring( 0, queryString.length - 1 );
 	queryString	=	queryString + " WHERE id = ?";
 
-	console.log( queryString );
-
 	gSqlClient.query( queryString, [ id ], callback );
 };
 
@@ -91,3 +89,10 @@ exports.isEmailExist	=	function( email, callback ) {
 	var queryString =	"SELECT COUNT( * ) FROM Users WHERE email = ?";
 	gSqlClient.query( queryString, [ email ], callback );
 };
+
+/* awards 점수 증가 */
+exports.increaseAwards	=	function( id ) {
+	var queryString =	"UPDATE Users SET awards = ( awards + 1 ) WHERE id = ?";
+	gSqlClient.query( queryString, [ id ] );
+};
+

@@ -115,6 +115,7 @@ app.post( '/users/:userId/awards/', users.insertAward );
 
 /* Groups */
 app.get( '/groups/:groupId/users/', groups.getGroupUsers );
+app.get( '/groups/:groupId/', groups.getGroupInfo );
 
 /* Schools */
 app.get( '/schools/', schools.getSchools );

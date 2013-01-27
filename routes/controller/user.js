@@ -210,7 +210,7 @@ exports.selectGroups	=	function( req, res ) {
 			return;
 		}
 
-		GroupService.selectGroups( id, fields, function( error, result, fields ) {
+		GroupService.selectUserGroups( id, fields, function( error, result, fields ) {
 			var resJson		=	null;
 			var resData		=	HmUtils.ISODateString( new Date() );
 
@@ -298,7 +298,7 @@ exports.insertAward	=	function( req, res ) {
 					if( err ) throw error;
 					else {
 						/* 이미 등록된 경우 */
-						if( docs > 0 ) {
+						if( docs < 0 ) {
 							resJson	=	{
 								code 	: gResultCode.duplicate,
 								date 	: resDate
@@ -307,6 +307,10 @@ exports.insertAward	=	function( req, res ) {
 							return;
 
 						} else {
+							/* Users 테이블 awards Update */
+							UserService.increaseAwards( id );
+
+							/* awardsHistory Insert */
 							awardHistory.save( function( err, data ) {
 						  		if( err ) throw error;
 								else {
