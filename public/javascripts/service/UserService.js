@@ -76,10 +76,12 @@ exports.check	=	function( data, callback ) {
 	var queryString =	"SELECT * FROM Users WHERE email = ? AND ";
 
 	if( data.type == "facebook" ) {
-		queryString 	+=	"fb_token = " + data.fb_token;
+		queryString 	+=	"fb_token = '" + data.fb_token + "'";
 	} else {
 		queryString 	+=	"pw = PASSWORD('" + data.pw + "')";
 	}
+
+	console.log( queryString );
 
 	gSqlClient.query( queryString, [ email ], callback );
 };
